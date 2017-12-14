@@ -70,6 +70,9 @@ extern const char testtask_name[];
 /*  Accuracy with which floats are compared */
 #define MINUNIT_EPSILON 1E-12
 
+/*	Format for convertion from a byte array to string */
+#define BYTEARR_TO_STR_FORMAT 	"0x%02X "
+
 /*  Misc. counters */
 static int minunit_run = 0;
 static int minunit_assert = 0;
@@ -247,6 +250,29 @@ static void (*minunit_teardown)(void) = NULL;
 	}\
 	if(strcmp(minunit_tmp_e, minunit_tmp_r)) {\
 		snprintf(minunit_last_message, MINUNIT_MESSAGE_LEN, "%s failed:\r\n\t%s:%d: '%s' expected but was '%s'", __func__, __FILE__, __LINE__, minunit_tmp_e, minunit_tmp_r);\
+		minunit_status = 1;\
+		return;\
+	} else {\
+		printf(".");\
+	}\
+)
+
+#define mu_assert_bytearray_eq(expected, result, complen) MU__SAFE_BLOCK(\
+	const uint8_t* minunit_tmp_e = expected;\
+	const uint8_t* minunit_tmp_r = result;\
+	minunit_assert++;\
+	if (!minunit_tmp_e || !minunit_tmp_r) {\
+		char *p = !minunit_tmp_e ? "expected" : "result";\
+		snprintf(minunit_last_message, MINUNIT_MESSAGE_LEN, "%s failed:\r\n\t%s:%d: '%s' pointer is NULL", __func__, __FILE__, __LINE__, p);\
+		minunit_status = 1;\
+		return;\
+	}\
+	if(memcmp(minunit_tmp_e, minunit_tmp_r, complen)) {\
+		char minunit_tmp_buf_e[(sizeof(BYTEARR_TO_STR_FORMAT) - 1) * complen + 1];\
+		char minunit_tmp_buf_r[(sizeof(BYTEARR_TO_STR_FORMAT) - 1) * complen + 1];\
+		bytearr_to_str(minunit_tmp_buf_e, minunit_tmp_e, complen);\
+		bytearr_to_str(minunit_tmp_buf_r, minunit_tmp_r, complen);\
+		snprintf(minunit_last_message, MINUNIT_MESSAGE_LEN, "%s failed:\r\n\t%s:%d: '%s' expected but was '%s'", __func__, __FILE__, __LINE__, minunit_tmp_buf_e, minunit_tmp_buf_r);\
 		minunit_status = 1;\
 		return;\
 	} else {\
@@ -451,6 +477,13 @@ static void get_runtime_stats(unsigned long *real_timer, unsigned long *cpu_time
 		*cpu_timer = atoi(v2p) * (*real_timer) / 100;
 }
 #endif
+
+static void bytearr_to_str(char *out, const uint8_t *in, size_t len)
+{
+	char *p = out;
+	for(size_t i = 0 ; i < len; ++i)
+		p += sprintf(p, BYTEARR_TO_STR_FORMAT, *in++);
+}
 
 #ifdef __cplusplus
 }
