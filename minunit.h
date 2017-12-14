@@ -54,6 +54,10 @@
 #include <mach/mach_time.h>
 #endif
 
+#elif defined(__FREERTOS__)
+#include "FreeRTOSConfig.h"
+extern const char testtask_name[];
+#define TIME_BASE_UNIT_STR "microseconds"
 #else
 #error "Unable to define timers for an unknown OS."
 #endif
@@ -73,8 +77,13 @@ static int minunit_fail = 0;
 static int minunit_status = 0;
 
 /*  Timers */
+#if defined(__FREERTOS__)
+static unsigned long minunit_real_timer = 0;
+static unsigned long minunit_proc_timer = 0;
+#else
 static double minunit_real_timer = 0;
 static double minunit_proc_timer = 0;
+#endif
 
 /*  Last message */
 static char minunit_last_message[MINUNIT_MESSAGE_LEN];
@@ -104,6 +113,35 @@ static void (*minunit_teardown)(void) = NULL;
 	minunit_teardown = teardown_fun;\
 )
 
+#if defined(__FREERTOS__)
+/*  Test runner */
+#define MU_RUN_TEST(test) MU__SAFE_BLOCK(\
+	if (minunit_real_timer==0 && minunit_proc_timer==0) {\
+		get_runtime_stats(&minunit_real_timer, &minunit_proc_timer);\
+	}\
+	if (minunit_setup) (*minunit_setup)();\
+	minunit_status = 0;\
+	test();\
+	minunit_run++;\
+	if (minunit_status) {\
+		minunit_fail++;\
+		printf("F");\
+		printf("\r\n%s\r\n", minunit_last_message);\
+	}\
+	if (minunit_teardown) (*minunit_teardown)();\
+)
+
+/*  Report */
+#define MU_REPORT() MU__SAFE_BLOCK(\
+	unsigned long minunit_end_real_timer;\
+	unsigned long minunit_end_proc_timer;\
+	printf("\r\n\n%d tests, %d assertions, %d failures\r\n", minunit_run, minunit_assert, minunit_fail);\
+	get_runtime_stats(&minunit_end_real_timer, &minunit_end_proc_timer);\
+	printf("\r\nFinished in %u " TIME_BASE_UNIT_STR "(real) %u " TIME_BASE_UNIT_STR " (proc)\r\n\n",\
+		minunit_end_real_timer - minunit_real_timer,\
+		minunit_end_proc_timer - minunit_proc_timer);\
+)
+#else
 /*  Test runner */
 #define MU_RUN_TEST(test) MU__SAFE_BLOCK(\
 	if (minunit_real_timer==0 && minunit_proc_timer==0) {\
@@ -134,6 +172,7 @@ static void (*minunit_teardown)(void) = NULL;
 		minunit_end_real_timer - minunit_real_timer,\
 		minunit_end_proc_timer - minunit_proc_timer);\
 )
+#endif
 
 /*  Assertions */
 #define mu_check(test) MU__SAFE_BLOCK(\
@@ -378,6 +417,40 @@ static double mu_timer_cpu(void)
 
 	return -1;		/* Failed. */
 }
+
+#ifdef __FREERTOS__
+static void get_runtime_stats(unsigned long *real_timer, unsigned long *cpu_timer)
+{
+	char b[128];
+	vTaskGetRunTimeStats(b);
+
+	// Real timer value is saved after first tab of testing task data
+	char *v1p = strstr(b, testtask_name);
+	v1p = strchr(v1p, '\t') + 1;
+
+	// Go to the end of the value
+	char *v2p = strchr(v1p, '\t');
+
+	// Add null terminating character to ensure proper execution of 'atoi' function
+	*v2p = '\0';
+
+	// Skip a null terminating character and one more tab to set the pointer to the beginning of the value of
+	// time spent on the task. The value is expressed by the percentage of real time.
+	v2p += 2;
+
+	// Get the end of the cpu timer value
+	char *v2p_end = strchr(v2p, '%');
+	*v2p_end = '\0';
+
+	*real_timer = atoi(v1p);
+
+	// Check if the FreeRTOS API function returned <1% CPU time usage
+	if(*v2p == '<')
+		*cpu_timer = 0;
+	else
+		*cpu_timer = atoi(v2p) * (*real_timer) / 100;
+}
+#endif
 
 #ifdef __cplusplus
 }
