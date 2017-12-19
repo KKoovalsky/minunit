@@ -7,7 +7,7 @@ It provides a way to define and configure test suites and a few handy assertion
 types.  It reports the summary of the number of tests run, number of assertions
 and time elapsed.
 
-This is a simple port for FreeRTOS. Unfortunately you won't be ready to go
+This framework supports also FreeRTOS. Unfortunately you won't be ready to go
 after downloading the framework - you have to set up an environment to properly
 run the tests. Steps to achieve this goal are described further.
 
