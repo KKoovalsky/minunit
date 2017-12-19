@@ -162,5 +162,4 @@ containing null characters. On failure a message is shown.
 
 ## Authors
 
-David Siñuela Pastor <siu.4coders@gmail.com>  
-Kacper Kowalski <kacper.s.kowalski@gmail.com>
+David Siñuela Pastor <siu.4coders@gmail.com>
