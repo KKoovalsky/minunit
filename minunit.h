@@ -80,10 +80,7 @@ static int minunit_fail = 0;
 static int minunit_status = 0;
 
 /*  Timers */
-#if defined(__FREERTOS__)
-static unsigned long minunit_real_timer = 0;
-static unsigned long minunit_proc_timer = 0;
-#else
+#ifndef __FREERTOS__
 static double minunit_real_timer = 0;
 static double minunit_proc_timer = 0;
 #endif
@@ -119,9 +116,6 @@ static void (*minunit_teardown)(void) = NULL;
 #if defined(__FREERTOS__)
 /*  Test runner */
 #define MU_RUN_TEST(test) MU__SAFE_BLOCK(\
-	if (minunit_real_timer==0 && minunit_proc_timer==0) {\
-		get_runtime_stats(&minunit_real_timer, &minunit_proc_timer);\
-	}\
 	if (minunit_setup) (*minunit_setup)();\
 	minunit_status = 0;\
 	test();\
@@ -136,13 +130,13 @@ static void (*minunit_teardown)(void) = NULL;
 
 /*  Report */
 #define MU_REPORT() MU__SAFE_BLOCK(\
-	unsigned long minunit_end_real_timer;\
-	unsigned long minunit_end_proc_timer;\
+	unsigned long minunit_real_timer;\
+	unsigned long minunit_proc_timer;\
 	printf("\r\n\n%d tests, %d assertions, %d failures\r\n", minunit_run, minunit_assert, minunit_fail);\
-	get_runtime_stats(&minunit_end_real_timer, &minunit_end_proc_timer);\
+	get_runtime_stats(&minunit_real_timer, &minunit_proc_timer);\
 	printf("\r\nFinished in %u " TIME_BASE_UNIT_STR "(real) %u " TIME_BASE_UNIT_STR " (proc)\r\n\n",\
-		minunit_end_real_timer - minunit_real_timer,\
-		minunit_end_proc_timer - minunit_proc_timer);\
+		minunit_real_timer,\
+		minunit_proc_timer);\
 )
 #else
 /*  Test runner */
@@ -468,13 +462,13 @@ static void get_runtime_stats(unsigned long *real_timer, unsigned long *cpu_time
 	char *v2p_end = strchr(v2p, '%');
 	*v2p_end = '\0';
 
-	*real_timer = atoi(v1p);
+	*cpu_timer = atoi(v1p);
 
 	// Check if the FreeRTOS API function returned <1% CPU time usage
 	if(*v2p == '<')
-		*cpu_timer = 0;
-	else
-		*cpu_timer = atoi(v2p) * (*real_timer) / 100;
+		v2p++;
+
+	*real_timer = 100 * (*cpu_timer) / atoi(v2p);
 }
 #endif
 
