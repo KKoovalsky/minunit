@@ -284,7 +284,7 @@ static void (*minunit_teardown)(void) = NULL;
 		char minunit_tmp_buf_r[(sizeof(BYTEARR_TO_STR_FORMAT) - 1) * complen + 1];\
 		bytearr_to_str(minunit_tmp_buf_e, minunit_tmp_e, complen);\
 		bytearr_to_str(minunit_tmp_buf_r, minunit_tmp_r, complen);\
-		snprintf(minunit_last_message, MINUNIT_MESSAGE_LEN, "%s failed:\r\n\t%s:%d: '%s' expected but was '%s'", __func__, __FILE__, __LINE__, minunit_tmp_buf_e, minunit_tmp_buf_r);\
+		snprintf(minunit_last_message, MINUNIT_MESSAGE_LEN, "%s failed:\r\n\t%s:%d:\n\r'%s' expected but was\n\r'%s'", __func__, __FILE__, __LINE__, minunit_tmp_buf_e, minunit_tmp_buf_r);\
 		minunit_status = 1;\
 		return;\
 	} else {\
