@@ -302,6 +302,7 @@ static void (*minunit_teardown)(void) = NULL;
  * Creative Commons Attribution 3.0 Unported License
  */
 
+#ifndef __FREERTOS__
 /**
  * Returns the real time, in seconds, or -1.0 if an error occurred.
  *
@@ -459,6 +460,7 @@ static double mu_timer_cpu(void)
 
 	return -1;		/* Failed. */
 }
+#endif /* ifdef __FREERTOS__ */
 
 #ifdef __FREERTOS__
 static void get_runtime_stats(unsigned int *real_timer, unsigned int *cpu_timer)
