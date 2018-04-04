@@ -55,7 +55,10 @@
 #endif
 
 #elif defined(__FREERTOS__)
-#include "FreeRTOSConfig.h"
+#include "FreeRTOS.h"
+#include "task.h"
+#include <stdlib.h>
+#include <string.h>
 extern const char testtask_name[];
 #define TIME_BASE_UNIT_STR "microseconds"
 #else
