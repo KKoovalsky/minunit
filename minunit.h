@@ -133,8 +133,8 @@ static void (*minunit_teardown)(void) = NULL;
 
 /*  Report */
 #define MU_REPORT() MU__SAFE_BLOCK(\
-	unsigned long minunit_real_timer;\
-	unsigned long minunit_proc_timer;\
+	unsigned int minunit_real_timer;\
+	unsigned int minunit_proc_timer;\
 	printf("\r\n\n%d tests, %d assertions, %d failures\r\n", minunit_run, minunit_assert, minunit_fail);\
 	get_runtime_stats(&minunit_real_timer, &minunit_proc_timer);\
 	printf("\r\nFinished in %u " TIME_BASE_UNIT_STR "(real) %u " TIME_BASE_UNIT_STR " (proc)\r\n\n",\
@@ -460,7 +460,7 @@ static double mu_timer_cpu(void)
 }
 
 #ifdef __FREERTOS__
-static void get_runtime_stats(unsigned long *real_timer, unsigned long *cpu_timer)
+static void get_runtime_stats(unsigned int *real_timer, unsigned int *cpu_timer)
 {
 	char b[128];
 	vTaskGetRunTimeStats(b);
