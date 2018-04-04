@@ -48,6 +48,7 @@
 #include <sys/resource.h>
 #include <sys/times.h>
 #include <string.h>
+#include <inttypes.h>
 
 #if defined(__MACH__) && defined(__APPLE__)
 #include <mach/mach.h>
