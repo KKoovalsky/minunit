@@ -496,7 +496,7 @@ static void get_runtime_stats(unsigned int *real_timer, unsigned int *cpu_timer)
 }
 #endif
 
-static void bytearr_to_str(char *out, const uint8_t *in, size_t len)
+static inline void bytearr_to_str(char *out, const uint8_t *in, size_t len)
 {
 	char *p = out;
 	for(size_t i = 0 ; i < len; ++i)
