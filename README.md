@@ -87,7 +87,7 @@ Finally you can create the task in which you run tests:
 			vTaskDelay(pdMS_TO_TICKS(1000));
 	}
 
-Don't forget to compile with `-D__FREERTOS__` flag.
+Don't forget to compile with `-D__MU_FREERTOS___` flag.
 
 Check the directory `freertos_examples` for more details.
 ## How to use it
