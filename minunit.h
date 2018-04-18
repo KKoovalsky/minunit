@@ -55,7 +55,7 @@
 #include <mach/mach_time.h>
 #endif
 
-#elif defined(__MU_FREERTOS___)
+#elif defined(__MU_FREERTOS__)
 #include "FreeRTOS.h"
 #include "task.h"
 #include <stdlib.h>
@@ -84,7 +84,7 @@ static int minunit_fail = 0;
 static int minunit_status = 0;
 
 /*  Timers */
-#ifndef __MU_FREERTOS___
+#ifndef __MU_FREERTOS__
 static double minunit_real_timer = 0;
 static double minunit_proc_timer = 0;
 #endif
@@ -117,7 +117,7 @@ static void (*minunit_teardown)(void) = NULL;
 	minunit_teardown = teardown_fun;\
 )
 
-#if defined(__MU_FREERTOS___)
+#if defined(__MU_FREERTOS__)
 /*  Test runner */
 #define MU_RUN_TEST(test) MU__SAFE_BLOCK(\
 	if (minunit_setup) (*minunit_setup)();\
@@ -303,7 +303,7 @@ static void (*minunit_teardown)(void) = NULL;
  * Creative Commons Attribution 3.0 Unported License
  */
 
-#ifndef __MU_FREERTOS___
+#ifndef __MU_FREERTOS__
 /**
  * Returns the real time, in seconds, or -1.0 if an error occurred.
  *
@@ -461,9 +461,9 @@ static double mu_timer_cpu(void)
 
 	return -1;		/* Failed. */
 }
-#endif /* ifdef __MU_FREERTOS___ */
+#endif /* ifdef __MU_FREERTOS__ */
 
-#ifdef __MU_FREERTOS___
+#ifdef __MU_FREERTOS__
 static void get_runtime_stats(unsigned int *real_timer, unsigned int *cpu_timer)
 {
 	char b[128];
