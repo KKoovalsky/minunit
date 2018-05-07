@@ -466,7 +466,7 @@ static double mu_timer_cpu(void)
 #ifdef __MU_FREERTOS__
 static void get_runtime_stats(unsigned int *real_timer, unsigned int *cpu_timer)
 {
-	char b[128];
+	char b[256];
 	vTaskGetRunTimeStats(b);
 
 	// Real timer value is saved after first tab of testing task data
